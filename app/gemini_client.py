@@ -93,18 +93,18 @@ You adapt responses to the user’s language and education level."""
     def analyze_document(self, text: str, doc_type: str = "generic", language: str = None) -> str:
         prompt = f"""I have a document (Type: {doc_type}) with the following content:
 
-{text[:90000]}
+{text[:50000]}
 
-Please analyze this legal document and provide strategic insights.
-Identify:
-1. Case Summary & Key Facts
-2. Relevant Legal Sections & Laws
-3. **Strengths of the Case**: Points that favor the winning of this case.
-4. **Weaknesses/Risks**: Areas that need attention.
-5. **Strategic Suggestions**: Legal steps or evidence that could help strengthen the position.
-6. **Next Procedural Steps**: What typically happens next.
+Please provide a **concise legal summary** of this document.
+Strictly follow this structure and keep the total response under 3500 characters:
 
-Provide the response in simple, clear language with bullet points.
+1. **Case Type/Nature**: What kind of document/case is this?
+2. **Key Facts**: The most important events or details.
+3. **Relevant Laws**: Laws or acts mentioned or applicable.
+4. **Current Status**: What is the current state of the matter?
+5. **Key Evidence/Points**: Main points supporting the case.
+
+Do NOT provide a full detailed analysis yet. Just the critical summary.
 Disclaimer: State clearly that this is an analysis for informational purposes only.
 """
         return self._call_gemini(prompt, language=language)

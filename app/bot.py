@@ -24,6 +24,16 @@ doc_processor = DocumentProcessor()
 
 # Constants
 DISCLAIMER = "\n\n⚠️ *Disclaimer*: This is legal information, not legal advice. Consult a licensed lawyer."
+MAX_MSG_LENGTH = 3500
+
+# --- Helper Functions for Message Safety ---
+def split_message(text):
+    return [text[i:i+MAX_MSG_LENGTH] for i in range(0, len(text), MAX_MSG_LENGTH)]
+
+async def safe_send(chat_id, text, context):
+    chunks = split_message(text)
+    for chunk in chunks:
+        await context.bot.send_message(chat_id=chat_id, text=chunk)
 
 # --- Helper Logic for Intent Detection ---
 def detect_intent(text: str) -> str:
@@ -136,11 +146,14 @@ async def process_explanation(update, context, query, status_msg):
     try:
         user_lang = context.user_data.get('language')
         response = gemini_client.get_legal_explanation(query, language=user_lang)
+        
+        # Edit status to "Done" then safe send content
         await context.bot.edit_message_text(
             chat_id=update.effective_chat.id,
             message_id=status_msg.message_id,
-            text=response + DISCLAIMER
+            text="✅ Explanation Generated:"
         )
+        await safe_send(update.effective_chat.id, response + DISCLAIMER, context)
     except Exception as e:
         await handle_error(update, context, status_msg, e)
 
@@ -161,11 +174,13 @@ Keep it practical and actionable.
         # Call internal method to allow custom prompt
         user_lang = context.user_data.get('language')
         response = gemini_client._call_gemini(prompt, language=user_lang)
+        
         await context.bot.edit_message_text(
             chat_id=update.effective_chat.id,
             message_id=status_msg.message_id,
-            text=response + DISCLAIMER
+            text="✅ Strategy Analysis Generated:"
         )
+        await safe_send(update.effective_chat.id, response + DISCLAIMER, context)
     except Exception as e:
         await handle_error(update, context, status_msg, e)
 
@@ -223,9 +238,9 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await context.bot.edit_message_text(
             chat_id=update.effective_chat.id, 
             message_id=status_msg.message_id, 
-            text="Analysis Complete. Summary below:"
+            text="✅ Analysis Complete. Summary below:"
         )
-        await update.message.reply_text(analysis + DISCLAIMER)
+        await safe_send(update.effective_chat.id, analysis + DISCLAIMER, context)
             
     except Exception as e:
         await handle_error(update, context, status_msg, e)
