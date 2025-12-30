@@ -236,8 +236,30 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     await update.message.reply_markdown(help_text)
 
 async def privacy_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    text = "**Privacy Policy** 🔒\n\nWe do not store documents permanently. Data is processed in-memory."
-    await update.message.reply_markdown(text)
+    text = (
+        "🔒 *Privacy Policy – Legal Tune Bot*\n\n"
+        "We respect your privacy and are committed to protecting your data.\n\n"
+        "*1. Data Collection*\n"
+        "We do NOT store personal information\n"
+        "Messages are processed only to generate responses\n"
+        "Uploaded files are used temporarily for analysis and are not saved\n\n"
+        "*2. Use of Information*\n"
+        "Information is used only to explain laws and legal procedures\n"
+        "No data is shared with third parties\n\n"
+        "*3. AI Usage*\n"
+        "This bot uses AI to provide legal information\n"
+        "AI responses are informational only, not legal advice\n\n"
+        "*4. Data Security*\n"
+        "We do not maintain databases of user conversations\n"
+        "Temporary processing is done securely\n\n"
+        "*5. Legal Disclaimer*\n"
+        "This bot provides legal information, not legal advice.\n"
+        "Always consult a licensed lawyer for legal matters.\n\n"
+        "*6. Policy Updates*\n"
+        "This privacy policy may be updated without prior notice."
+    )
+    # Use effective_message to handle both Commands and CallbackQueries
+    await update.effective_message.reply_markdown(text)
 
 async def faq_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     text = "**Legal FAQ** ❓\n\n1. Is this advice? No.\n2. Predictions? No."
