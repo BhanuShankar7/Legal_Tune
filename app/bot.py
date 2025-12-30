@@ -2,6 +2,7 @@
 import logging
 import os
 import sys
+import re
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -27,13 +28,26 @@ DISCLAIMER = "\n\n⚠️ *Disclaimer*: This is legal information, not legal advi
 MAX_MSG_LENGTH = 3500
 
 # --- Helper Functions for Message Safety ---
+def format_for_telegram(text: str) -> str:
+    # Convert **bold** to <b>bold</b>
+    text = re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", text)
+    # Optional: convert *italic*
+    text = re.sub(r"\*(.*?)\*", r"<i>\1</i>", text)
+    return text
+
 def split_message(text):
     return [text[i:i+MAX_MSG_LENGTH] for i in range(0, len(text), MAX_MSG_LENGTH)]
 
 async def safe_send(chat_id, text, context):
     chunks = split_message(text)
     for chunk in chunks:
-        await context.bot.send_message(chat_id=chat_id, text=chunk)
+        formatted_chunk = format_for_telegram(chunk)
+        try:
+            await context.bot.send_message(chat_id=chat_id, text=formatted_chunk, parse_mode="HTML")
+        except Exception as e:
+            # Fallback for HTML parsing errors
+            logger.error(f"HTML Parse Error: {e}")
+            await context.bot.send_message(chat_id=chat_id, text=chunk)
 
 # --- Helper Logic for Intent Detection ---
 def detect_intent(text: str) -> str:
