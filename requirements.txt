@@ -1,0 +1,12 @@
+python-telegram-bot[job-queue]
+google-generativeai
+python-dotenv
+pypdf
+python-docx
+pytesseract
+pillow
+pdfplumber
+fastapi
+uvicorn
+requests
+regex
