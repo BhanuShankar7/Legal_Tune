@@ -134,7 +134,8 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 async def process_explanation(update, context, query, status_msg):
     try:
-        response = gemini_client.get_legal_explanation(query)
+        user_lang = context.user_data.get('language')
+        response = gemini_client.get_legal_explanation(query, language=user_lang)
         await context.bot.edit_message_text(
             chat_id=update.effective_chat.id,
             message_id=status_msg.message_id,
@@ -158,7 +159,8 @@ Provide:
 Keep it practical and actionable.
 """
         # Call internal method to allow custom prompt
-        response = gemini_client._call_gemini(prompt)
+        user_lang = context.user_data.get('language')
+        response = gemini_client._call_gemini(prompt, language=user_lang)
         await context.bot.edit_message_text(
             chat_id=update.effective_chat.id,
             message_id=status_msg.message_id,
@@ -214,8 +216,9 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 text="⚠️ Could not extract text. File might be empty/unreadable."
              )
              return
-
-        analysis = gemini_client.analyze_document(content, doc_type="Case Document")
+        
+        user_lang = context.user_data.get('language')
+        analysis = gemini_client.analyze_document(content, doc_type="Case Document", language=user_lang)
         
         await context.bot.edit_message_text(
             chat_id=update.effective_chat.id, 

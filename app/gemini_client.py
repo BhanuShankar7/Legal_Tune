@@ -18,9 +18,10 @@ You assist users by explaining concepts, risks, options, and procedures.
 You always include a disclaimer for case-related questions.
 You adapt responses to the user’s language and education level."""
 
-    def _call_gemini(self, prompt_text: str) -> str:
+    def _call_gemini(self, prompt_text: str, language: str = None) -> str:
         # Construct payload with system instructions prepended to user prompt
-        full_text = f"{self.system_instructions}\n\n{prompt_text}"
+        lang_instruction = f"\n\nIMPORTANT: Provide the response in {language} language." if language else ""
+        full_text = f"{self.system_instructions}\n\n{prompt_text}{lang_instruction}"
         
         payload = {
             "contents": [
@@ -85,11 +86,11 @@ You adapt responses to the user’s language and education level."""
         
         return "⚠️ The AI service is temporarily unavailable. Please try again later."
 
-    def get_legal_explanation(self, query: str) -> str:
+    def get_legal_explanation(self, query: str, language: str = None) -> str:
         prompt = f"User Query: {query}\n\nExplain this law or legal concept in simple terms."
-        return self._call_gemini(prompt)
+        return self._call_gemini(prompt, language=language)
 
-    def analyze_document(self, text: str, doc_type: str = "generic") -> str:
+    def analyze_document(self, text: str, doc_type: str = "generic", language: str = None) -> str:
         prompt = f"""I have a document (Type: {doc_type}) with the following content:
 
 {text[:90000]}
@@ -106,4 +107,4 @@ Identify:
 Provide the response in simple, clear language with bullet points.
 Disclaimer: State clearly that this is an analysis for informational purposes only.
 """
-        return self._call_gemini(prompt)
+        return self._call_gemini(prompt, language=language)
